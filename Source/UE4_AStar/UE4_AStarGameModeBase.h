@@ -18,4 +18,8 @@ class UE4_ASTAR_API AUE4_AStarGameModeBase : public AGameModeBase
 
 public:
 	virtual void StartPlay() override;
+
+	void CameraSetting();
+	void InputSetting();
+	void LMouseClick();
 };
