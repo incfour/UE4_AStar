@@ -24,5 +24,7 @@ public:
 	void EnvSetting();
 	void LMouseClick();	
 
+	int MapSellCount = 10;
 	int MapSize;
+	int BlockSize;
 };

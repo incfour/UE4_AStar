@@ -72,9 +72,10 @@ void AUE4_AStarGameModeBase::EnvSetting()
 		FVector BoxExtent;
 		Mesh->GetActorBounds(false, Origin, BoxExtent);
 
-		FVector Location = Mesh->GetActorLocation();
+		//FVector Location = Mesh->GetActorLocation();
 
-		int a = 0;
+		MapSize = BoxExtent.X;
+		BlockSize = MapSize / MapSellCount;		
 	}
 }
 
