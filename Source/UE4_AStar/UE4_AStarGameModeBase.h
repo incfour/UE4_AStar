@@ -23,6 +23,7 @@ public:
 	void InputSetting();
 	void EnvSetting();
 	void LMouseClick();	
+	void SpawnBlock();
 
 	int MapSellCount = 10;
 	int MapSize;
