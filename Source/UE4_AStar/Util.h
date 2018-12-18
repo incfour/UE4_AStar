@@ -11,5 +11,32 @@ public:
 	Util();
 	~Util();
 
-	static AActor* FindActor(UWorld* World, FString Name);
+	template <typename ActorType>
+	static ActorType* FindActor(UWorld* World, FString Name)
+	{
+		for (TActorIterator<ActorType> ActorItr(World); ActorItr; ++ActorItr)
+		{
+			ActorType *Actor = *ActorItr;
+			if (Actor->GetName() == Name)
+			{
+				return Actor;
+			}
+		}
+
+		return nullptr;
+	}
+
+	template <typename ObjectType>
+	static ObjectType* FindObject(FString Name)
+	{
+		for (TObjectIterator<ObjectType> Itr; Itr; ++Itr)
+		{
+			if (Itr->GetName() == Name)
+			{
+				return *Itr;
+			}
+		}
+
+		return nullptr;
+	}
 };

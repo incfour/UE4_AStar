@@ -16,11 +16,12 @@ void AUE4_AStarGameModeBase::StartPlay()
 
 	CameraSetting();
 	InputSetting();
+	EnvSetting();
 }
 
 void AUE4_AStarGameModeBase::CameraSetting()
 {
-	AActor* Actor = Util::FindActor(GetWorld(), TEXT("CameraActor_1"));
+	AActor* Actor = Util::FindActor<AActor>(GetWorld(), TEXT("CameraActor_1"));
 	if (Actor)
 	{		
 		
@@ -51,6 +52,30 @@ void AUE4_AStarGameModeBase::InputSetting()
 void AUE4_AStarGameModeBase::LMouseClick()
 {
 	UE_LOG(LogTemp, Warning, TEXT("LMouseClick"));
+
+	if (APlayerController* PlayerController = GetWorld()->GetFirstPlayerController())
+	{
+		FHitResult HitResult;
+		PlayerController->GetHitResultUnderCursor(ECC_Visibility, false, HitResult);
+		if (HitResult.bBlockingHit)
+		{			
+			UE_LOG(LogTemp, Warning, TEXT("hit %f %f %f"), HitResult.ImpactPoint.X, HitResult.ImpactPoint.Y, HitResult.ImpactPoint.Z);
+		}		
+	}
+}
+
+void AUE4_AStarGameModeBase::EnvSetting()
+{	
+	if (AStaticMeshActor* Mesh = Util::FindActor<AStaticMeshActor>(GetWorld(), TEXT("Floor")))
+	{
+		FVector Origin;
+		FVector BoxExtent;
+		Mesh->GetActorBounds(false, Origin, BoxExtent);
+
+		FVector Location = Mesh->GetActorLocation();
+
+		int a = 0;
+	}
 }
 
 

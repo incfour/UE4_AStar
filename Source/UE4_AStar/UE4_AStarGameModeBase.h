@@ -21,5 +21,8 @@ public:
 
 	void CameraSetting();
 	void InputSetting();
-	void LMouseClick();
+	void EnvSetting();
+	void LMouseClick();	
+
+	int MapSize;
 };
