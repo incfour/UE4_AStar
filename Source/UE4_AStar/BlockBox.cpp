@@ -10,8 +10,9 @@ ABlockBox::ABlockBox()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 
-	UStaticMeshComponent* Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("VisualRepresentation"));
-	Mesh->SetupAttachment(RootComponent);
+	UStaticMeshComponent* Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ABlockBoxMesh"));
+	RootComponent = Mesh;
+	//Mesh->SetupAttachment(RootComponent);
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> BoxAsset(TEXT("StaticMesh'/Game/Shape_Cube.Shape_Cube'"));
 	if (BoxAsset.Succeeded())
 	{		
@@ -19,6 +20,14 @@ ABlockBox::ABlockBox()
 		/*SphereVisual->SetRelativeLocation(FVector(0.0f, 0.0f, 40.0f));
 		SphereVisual->SetWorldScale3D(FVector(0.8f));*/			
 	}
+
+	static ConstructorHelpers::FObjectFinder<UMaterial>	Material (TEXT("Material'/Game/Material/Cube_mat.Cube_mat'"));
+	Mesh->SetMaterial(0, Material.Object);	
+}
+
+ABlockBox::~ABlockBox()
+{
+	int a = 0;
 }
 
 // Called when the game starts or when spawned

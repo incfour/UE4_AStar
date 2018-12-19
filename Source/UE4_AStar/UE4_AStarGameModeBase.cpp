@@ -18,6 +18,8 @@ void AUE4_AStarGameModeBase::StartPlay()
 	CameraSetting();
 	InputSetting();
 	EnvSetting();
+
+	memset(&MapArray, 0, sizeof(bool) * 10 * 10);	
 }
 
 void AUE4_AStarGameModeBase::CameraSetting()
@@ -47,6 +49,7 @@ void AUE4_AStarGameModeBase::InputSetting()
 		if (PlayerController->InputComponent)
 		{		
 			PlayerController->InputComponent->BindAction(TEXT("LMouseClick"), IE_Released, this, &AUE4_AStarGameModeBase::LMouseClick);
+			PlayerController->InputComponent->BindAction(TEXT("C_Btn_Click"), IE_Released, this, &AUE4_AStarGameModeBase::ClearBlock);
 		}		
 	}
 }
@@ -91,16 +94,37 @@ void AUE4_AStarGameModeBase::SpawnBlock()
 			int ArrayX = (int)(X / (float)BlockSize);
 			int ArrayY = (int)(Y / (float)BlockSize);
 
+			if (MapArray[ArrayX][ArrayY])
+			{				
+				return;
+			}
+
 			FActorSpawnParameters spawninfo;// = FActorSpawnParameters();
 			spawninfo.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-			GWorld->SpawnActor<ABlockBox>(FVector(ArrayX * BlockSize - MapSize / 2.0f + 50.0f
+			ABlockBox* BlockBox = GWorld->SpawnActor<ABlockBox>(FVector(ArrayX * BlockSize - MapSize / 2.0f + 50.0f
 				, ArrayY * BlockSize - MapSize / 2.0f + 50.0f, 0.0f), FRotator(0, 0, 0), spawninfo);
 
+			BlockBoxArray.Emplace(BlockBox);
+
+			MapArray[ArrayX][ArrayY] = true;
 			//UE_LOG(LogTemp, Warning, TEXT("hit %f %f"), X, Y);
 			UE_LOG(LogTemp, Warning, TEXT("hit %d %d"), ArrayX, ArrayY);
 		}
 	}
 }
 
+void AUE4_AStarGameModeBase::ClearBlock()
+{
+	UE_LOG(LogTemp, Warning, TEXT("ClearBlock Size : %d"), BlockBoxArray.Num());
+
+	for (auto* i : BlockBoxArray)
+	{		
+		GWorld->DestroyActor(i);		
+	}	
+
+	BlockBoxArray.Empty();
+
+	memset(&MapArray, 0, sizeof(bool) * 10 * 10);
+}
 
 

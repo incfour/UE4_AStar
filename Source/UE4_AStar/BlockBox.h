@@ -13,6 +13,7 @@ class UE4_ASTAR_API ABlockBox : public AActor
 public:	
 	// Sets default values for this actor's properties
 	ABlockBox();
+	virtual ~ABlockBox();
 
 protected:
 	// Called when the game starts or when spawned

@@ -24,8 +24,12 @@ public:
 	void EnvSetting();
 	void LMouseClick();	
 	void SpawnBlock();
+	void ClearBlock();
 
 	int MapSellCount = 10;
 	int MapSize;
 	int BlockSize;
+
+	TArray<class ABlockBox*> BlockBoxArray;
+	bool MapArray[10][10];
 };
