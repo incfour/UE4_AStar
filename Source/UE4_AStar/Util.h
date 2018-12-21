@@ -12,7 +12,7 @@ public:
 	~Util();
 
 	template <typename ActorType>
-	static ActorType* FindActor(UWorld* World, FString Name)
+	static ActorType* FindActor(UWorld* World, const FString& Name)
 	{
 		for (TActorIterator<ActorType> ActorItr(World); ActorItr; ++ActorItr)
 		{
@@ -27,7 +27,7 @@ public:
 	}
 
 	template <typename ObjectType>
-	static ObjectType* FindObject(FString Name)
+	static ObjectType* FindObject(const FString& Name)
 	{
 		for (TObjectIterator<ObjectType> Itr; Itr; ++Itr)
 		{

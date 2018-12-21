@@ -4,12 +4,12 @@
 #include "UE4_AStarGameModeBase.h"
 #include "Util.h"
 #include "BlockBox.h"
+#include "AStar_logic.h"
 
-//AUE4_AStarGameModeBase::AUE4_AStarGameModeBase(const FObjectInitializer& ObjectInitializer)
-//:Super(ObjectInitializer)
-//{
-//	
-//}
+AUE4_AStarGameModeBase::AUE4_AStarGameModeBase(const FObjectInitializer& ObjectInitializer)
+{
+	AStar = CreateDefaultSubobject<UAStar_logic>(TEXT("UAStar_logic"));
+}
 
 void AUE4_AStarGameModeBase::StartPlay()
 {
@@ -19,13 +19,12 @@ void AUE4_AStarGameModeBase::StartPlay()
 	InputSetting();
 	EnvSetting();
 
-	memset(&MapArray, 0, sizeof(bool) * 10 * 10);	
+	AStar->StartPlay();
 }
 
 void AUE4_AStarGameModeBase::CameraSetting()
-{
-	AActor* Actor = Util::FindActor<AActor>(GetWorld(), TEXT("CameraActor_1"));
-	//AActor* Actor = Util::FindActor<AActor>(GetWorld(), TEXT("CameraActor2_3"));
+{	
+	AActor* Actor = Util::FindActor<AActor>(GetWorld(), TEXT("CameraActor_1"));	
 	if (Actor)
 	{		
 		
@@ -50,6 +49,8 @@ void AUE4_AStarGameModeBase::InputSetting()
 		{		
 			PlayerController->InputComponent->BindAction(TEXT("LMouseClick"), IE_Released, this, &AUE4_AStarGameModeBase::LMouseClick);
 			PlayerController->InputComponent->BindAction(TEXT("C_Btn_Click"), IE_Released, this, &AUE4_AStarGameModeBase::ClearBlock);
+			PlayerController->InputComponent->BindAction(TEXT("S_Btn_Click"), IE_Released, this, &AUE4_AStarGameModeBase::StartPointSetting);
+			PlayerController->InputComponent->BindAction(TEXT("G_Btn_Click"), IE_Released, this, &AUE4_AStarGameModeBase::GoalPointSetting);
 		}		
 	}
 }
@@ -74,43 +75,76 @@ void AUE4_AStarGameModeBase::EnvSetting()
 		////FVector Location = Mesh->GetActorLocation();		
 		//MapSize = BoxExtent.X;
 
-		BlockSize = MapSize / MapSellCount;		
+		BlockSize = MapSize / UAStar_logic::MAP_SELL_NUM2;
 
 		UE_LOG(LogTemp, Warning, TEXT("MapSize %d"), MapSize);
 	}
 }
 
-void AUE4_AStarGameModeBase::SpawnBlock()
+FVector2D AUE4_AStarGameModeBase::GetHitPoint()
 {
+	FVector2D ret;	
+
 	if (APlayerController* PlayerController = GetWorld()->GetFirstPlayerController())
 	{
 		FHitResult HitResult;
 		PlayerController->GetHitResultUnderCursor(ECC_Visibility, false, HitResult);
 		if (HitResult.bBlockingHit)
 		{
-			float X = HitResult.ImpactPoint.X + MapSize / 2.0f;
-			float Y = HitResult.ImpactPoint.Y + MapSize / 2.0f;
-
-			int ArrayX = (int)(X / (float)BlockSize);
-			int ArrayY = (int)(Y / (float)BlockSize);
-
-			if (MapArray[ArrayX][ArrayY])
-			{				
-				return;
-			}
-
-			FActorSpawnParameters spawninfo;// = FActorSpawnParameters();
-			spawninfo.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-			ABlockBox* BlockBox = GWorld->SpawnActor<ABlockBox>(FVector(ArrayX * BlockSize - MapSize / 2.0f + 50.0f
-				, ArrayY * BlockSize - MapSize / 2.0f + 50.0f, 0.0f), FRotator(0, 0, 0), spawninfo);
-
-			BlockBoxArray.Emplace(BlockBox);
-
-			MapArray[ArrayX][ArrayY] = true;
-			//UE_LOG(LogTemp, Warning, TEXT("hit %f %f"), X, Y);
-			UE_LOG(LogTemp, Warning, TEXT("hit %d %d"), ArrayX, ArrayY);
+			ret.X = HitResult.ImpactPoint.X;
+			ret.Y = HitResult.ImpactPoint.Y;
 		}
 	}
+
+	return ret;
+}
+
+FVector2D AUE4_AStarGameModeBase::ConvertArrayPos(const FVector2D& HitPos)
+{
+	FVector2D ret;	
+
+	float X = HitPos.X + MapSize / 2.0f;
+	float Y = HitPos.Y + MapSize / 2.0f;
+
+	ret.X = (int)(X / (float)BlockSize);
+	ret.Y = (int)(Y / (float)BlockSize);
+
+	return ret;
+}
+
+FVector2D AUE4_AStarGameModeBase::ConvertWorldSpawnPos(const FVector2D& ArrayPos)
+{
+	FVector2D ret;
+
+	ret.X = ArrayPos.X * BlockSize - MapSize / 2.0f + 50.0f;
+	ret.Y = ArrayPos.Y * BlockSize - MapSize / 2.0f + 50.0f;
+
+	return ret;
+}
+
+void AUE4_AStarGameModeBase::SpawnBlock()
+{
+	FVector2D HitPoint = GetHitPoint();
+
+	if (!HitPoint.IsZero())
+	{
+		FVector2D ArrayPoint = ConvertArrayPos(HitPoint);
+
+		if (AStar->IsBlock(ArrayPoint.X, ArrayPoint.Y))
+		{
+			return;
+		}
+
+		AStar->SetBlock(ArrayPoint.X, ArrayPoint.Y);
+
+		FVector2D WorldSpawnPoint = ConvertWorldSpawnPos(ArrayPoint);
+
+		FActorSpawnParameters spawninfo;
+		spawninfo.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		ABlockBox* BlockBox = GWorld->SpawnActor<ABlockBox>(FVector(WorldSpawnPoint.X , WorldSpawnPoint.Y, 0.0f), FRotator(0, 0, 0), spawninfo);
+
+		BlockBoxArray.Emplace(BlockBox);		
+	}	
 }
 
 void AUE4_AStarGameModeBase::ClearBlock()
@@ -124,7 +158,50 @@ void AUE4_AStarGameModeBase::ClearBlock()
 
 	BlockBoxArray.Empty();
 
-	memset(&MapArray, 0, sizeof(bool) * 10 * 10);
+	AStar->ResetArray();	
 }
 
+void AUE4_AStarGameModeBase::StartPointSetting()
+{
+	if (AStaticMeshActor* Mesh = Util::FindActor<AStaticMeshActor>(GetWorld(), TEXT("Player")))
+	{
+		FVector2D HitPoint = GetHitPoint();
 
+		if (!HitPoint.IsZero())
+		{
+			FVector2D ArrayPoint = ConvertArrayPos(HitPoint);		
+			FVector2D WorldSpawnPoint = ConvertWorldSpawnPos(ArrayPoint);
+			FVector Loc = Mesh->GetActorLocation();
+
+			Loc.X = WorldSpawnPoint.X;
+			Loc.Y = WorldSpawnPoint.Y;
+
+			Mesh->SetActorLocation(Loc);
+
+			AStar->SetStartPoint(ArrayPoint.X, ArrayPoint.Y);
+		}
+	}	
+}
+
+void AUE4_AStarGameModeBase::GoalPointSetting()
+{
+	UE_LOG(LogTemp, Warning, TEXT("GoalPointSetting"));
+	if (AStaticMeshActor* Mesh = Util::FindActor<AStaticMeshActor>(GetWorld(), TEXT("Goal")))
+	{
+		FVector2D HitPoint = GetHitPoint();
+
+		if (!HitPoint.IsZero())
+		{
+			FVector2D ArrayPoint = ConvertArrayPos(HitPoint);
+			FVector2D WorldSpawnPoint = ConvertWorldSpawnPos(ArrayPoint);
+			FVector Loc = Mesh->GetActorLocation();
+
+			Loc.X = WorldSpawnPoint.X;
+			Loc.Y = WorldSpawnPoint.Y;
+
+			Mesh->SetActorLocation(Loc);
+
+			AStar->SetGoalPoint(ArrayPoint.X, ArrayPoint.Y);
+		}
+	}
+}
