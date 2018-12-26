@@ -22,13 +22,9 @@ void AUE4_AStarGameModeBase::StartPlay()
 
 	CameraSetting();
 	InputSetting();
-<<<<<<< HEAD
-	EnvSetting();	
-=======
 	EnvSetting();
 
 	AStar->StartPlay();
->>>>>>> d0d6086d274d88aa578b1cfe999928fa90cc970b
 }
 
 void AUE4_AStarGameModeBase::Tick(float DeltaTime)
