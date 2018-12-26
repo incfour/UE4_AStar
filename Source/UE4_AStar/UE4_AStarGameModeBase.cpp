@@ -17,7 +17,7 @@ void AUE4_AStarGameModeBase::StartPlay()
 
 	CameraSetting();
 	InputSetting();
-	EnvSetting();;	
+	EnvSetting();
 }
 
 void AUE4_AStarGameModeBase::CameraSetting()
