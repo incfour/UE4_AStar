@@ -20,6 +20,7 @@ class UE4_ASTAR_API AUE4_AStarGameModeBase : public AGameModeBase
 
 public:
 	virtual void StartPlay() override;
+	virtual void Tick(float DeltaTime) override;
 
 	void CameraSetting();
 	void InputSetting();
@@ -27,8 +28,11 @@ public:
 	void LMouseClick();	
 	void SpawnBlock();
 	void ClearBlock();
+	void Clear();
 	void StartPointSetting();
 	void GoalPointSetting();
+	void Play();
+	void RecvEvent_MoveWay(FVector2D Point);
 
 	/** Get Piking Point. */
 	FVector2D GetHitPoint();
@@ -40,10 +44,8 @@ public:
 	FVector2D ConvertWorldSpawnPos(const FVector2D& ArrayPos);
 
 	int MapSize;
-	int BlockSize;
+	int BlockSize;	
 
 	TArray<class ABlockBox*> BlockBoxArray;
-	//bool MapArray[MAP_SELL_NUM][MAP_SELL_NUM];
-
 	class UAStar_logic* AStar;	
 };

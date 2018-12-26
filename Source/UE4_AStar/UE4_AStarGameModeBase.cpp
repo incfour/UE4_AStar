@@ -5,14 +5,19 @@
 #include "Util.h"
 #include "BlockBox.h"
 #include "AStar_logic.h"
+#include "FMainEvent.h"
 
 AUE4_AStarGameModeBase::AUE4_AStarGameModeBase(const FObjectInitializer& ObjectInitializer)
 {
-	AStar = CreateDefaultSubobject<UAStar_logic>(TEXT("UAStar_logic"));
+	PrimaryActorTick.bCanEverTick = true;
+
+	AStar = CreateDefaultSubobject<UAStar_logic>(TEXT("UAStar_logic"));	
 }
 
 void AUE4_AStarGameModeBase::StartPlay()
 {
+	FMainEvent::MoveWayEvent.AddUObject(this, &AUE4_AStarGameModeBase::RecvEvent_MoveWay);
+
 	Super::StartPlay();
 
 	CameraSetting();
@@ -20,6 +25,13 @@ void AUE4_AStarGameModeBase::StartPlay()
 	EnvSetting();
 
 	AStar->StartPlay();
+}
+
+void AUE4_AStarGameModeBase::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);	
+
+	AStar->Tick(DeltaTime);
 }
 
 void AUE4_AStarGameModeBase::CameraSetting()
@@ -48,9 +60,10 @@ void AUE4_AStarGameModeBase::InputSetting()
 		if (PlayerController->InputComponent)
 		{		
 			PlayerController->InputComponent->BindAction(TEXT("LMouseClick"), IE_Released, this, &AUE4_AStarGameModeBase::LMouseClick);
-			PlayerController->InputComponent->BindAction(TEXT("C_Btn_Click"), IE_Released, this, &AUE4_AStarGameModeBase::ClearBlock);
+			PlayerController->InputComponent->BindAction(TEXT("C_Btn_Click"), IE_Released, this, &AUE4_AStarGameModeBase::Clear);
 			PlayerController->InputComponent->BindAction(TEXT("S_Btn_Click"), IE_Released, this, &AUE4_AStarGameModeBase::StartPointSetting);
 			PlayerController->InputComponent->BindAction(TEXT("G_Btn_Click"), IE_Released, this, &AUE4_AStarGameModeBase::GoalPointSetting);
+			PlayerController->InputComponent->BindAction(TEXT("P_Btn_Click"), IE_Released, this, &AUE4_AStarGameModeBase::Play);
 		}		
 	}
 }
@@ -75,7 +88,7 @@ void AUE4_AStarGameModeBase::EnvSetting()
 		////FVector Location = Mesh->GetActorLocation();		
 		//MapSize = BoxExtent.X;
 
-		BlockSize = MapSize / UAStar_logic::MAP_SELL_NUM2;
+		BlockSize = MapSize / UAStar_logic::MAP_SELL_NUM;
 
 		UE_LOG(LogTemp, Warning, TEXT("MapSize %d"), MapSize);
 	}
@@ -156,9 +169,24 @@ void AUE4_AStarGameModeBase::ClearBlock()
 		GWorld->DestroyActor(i);		
 	}	
 
-	BlockBoxArray.Empty();
+	BlockBoxArray.Empty();	
+}
 
-	AStar->ResetArray();	
+void AUE4_AStarGameModeBase::Clear()
+{
+	ClearBlock();
+
+	AStar->Reset();
+
+	if (AStaticMeshActor* Mesh = Util::FindActor<AStaticMeshActor>(GetWorld(), TEXT("Player")))
+	{
+		Mesh->SetActorLocation(FVector(-350, -550, 50));
+	}
+
+	if (AStaticMeshActor* Mesh = Util::FindActor<AStaticMeshActor>(GetWorld(), TEXT("Goal")))
+	{
+		Mesh->SetActorLocation(FVector(-450, -550, 50));
+	}
 }
 
 void AUE4_AStarGameModeBase::StartPointSetting()
@@ -205,3 +233,23 @@ void AUE4_AStarGameModeBase::GoalPointSetting()
 		}
 	}
 }
+
+void AUE4_AStarGameModeBase::Play()
+{	
+	AStar->Play();
+}
+
+void AUE4_AStarGameModeBase::RecvEvent_MoveWay(FVector2D Point)
+{
+	if (AStaticMeshActor* Mesh = Util::FindActor<AStaticMeshActor>(GetWorld(), TEXT("Player")))
+	{
+		FVector Loc = Mesh->GetActorLocation();
+		FVector2D WorldPoint = ConvertWorldSpawnPos(Point);
+
+		Loc.X = WorldPoint.X;
+		Loc.Y = WorldPoint.Y;
+
+		Mesh->SetActorLocation(Loc);
+	}
+}
+
