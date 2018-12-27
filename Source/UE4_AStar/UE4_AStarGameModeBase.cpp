@@ -227,8 +227,7 @@ void AUE4_AStarGameModeBase::GoalPointSetting()
 			Loc.X = WorldSpawnPoint.X;
 			Loc.Y = WorldSpawnPoint.Y;
 
-			Mesh->SetActorLocation(Loc);
-
+			Mesh->SetActorLocation(Loc);			
 			AStar->SetGoalPoint(ArrayPoint.X, ArrayPoint.Y);
 		}
 	}
@@ -248,7 +247,7 @@ void AUE4_AStarGameModeBase::RecvEvent_MoveWay(FVector2D Point)
 
 		Loc.X = WorldPoint.X;
 		Loc.Y = WorldPoint.Y;
-
+		
 		Mesh->SetActorLocation(Loc);
 	}
 }

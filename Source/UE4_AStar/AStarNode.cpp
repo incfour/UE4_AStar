@@ -8,6 +8,7 @@
 
 UAStarNode::UAStarNode()
 {
+	P = FVector2D::ZeroVector;
 	F = 0.0f;
 	G = 0.0f;
 	W = 0.0f;

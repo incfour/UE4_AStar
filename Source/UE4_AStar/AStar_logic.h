@@ -40,12 +40,18 @@ public:
 	UAStarNode* GetMinNodeF();
 
 private:
-	FTimerHandle _TimerHandle;
-	bool BStart;
+	FTimerHandle _TimerHandle;	
 	bool MapArray[MAP_SELL_NUM][MAP_SELL_NUM];
+	UPROPERTY()
 	TArray<UAStarNode*> OpenList;
+	UPROPERTY()
 	TArray<UAStarNode*> CloseList;
+	UPROPERTY()
 	UAStarNode* StartNode;
+	UPROPERTY()
 	UAStarNode* GoalNode;	
+	UPROPERTY()
 	UAStarNode* CurNode;
+	bool StartNodeSetting;
+	bool GoalNodeSetting;
 };

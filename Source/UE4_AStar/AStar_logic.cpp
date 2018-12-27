@@ -5,18 +5,21 @@
 #include "FMainEvent.h"
 
 UAStar_logic::UAStar_logic()
-: BStart(false)
-, StartNode(nullptr)
+: CurNode(nullptr)
+, StartNodeSetting(false)
+, GoalNodeSetting(false)
 {	
+	StartNode = CreateDefaultSubobject<UAStarNode>(TEXT("STARTNODE"));
+	GoalNode = CreateDefaultSubobject<UAStarNode>(TEXT("GOALNODE"));
 }
 
 UAStar_logic::~UAStar_logic()
 {	
+	UE_LOG(LogTemp, Warning, TEXT("UAStar_logic Destroy"));
 }
 
 void UAStar_logic::StartPlay()
-{
-	UE_LOG(LogTemp, Warning, TEXT("UAStar_logic::StartPlay %d"), GEngine->GetWorld());
+{	
 	Reset();	
 }
 
@@ -24,19 +27,16 @@ void UAStar_logic::Reset()
 {
 	memset(&MapArray, 0, sizeof(bool) * MAP_SELL_NUM * MAP_SELL_NUM);
 
-	if (StartNode)
-	{
-		StartNode->ConditionalBeginDestroy();
-		StartNode = nullptr;
-	}
-	
-	if (GoalNode)
-	{
-		GoalNode->ConditionalBeginDestroy();
-		GoalNode = nullptr;
-	}	
+	OpenList.Empty();
+	CloseList.Empty();
 
-	BStart = false;
+	StartNode->P = FVector2D::ZeroVector;
+	GoalNode->P = FVector2D::ZeroVector;
+
+	StartNodeSetting = false;
+	GoalNodeSetting = false;
+
+	GEngine->GameViewport->GetWorld()->GetTimerManager().ClearTimer(_TimerHandle);	
 }
 
 void UAStar_logic::SetBlock(int ArrayX, int ArrayY)
@@ -51,31 +51,25 @@ bool UAStar_logic::IsBlock(int ArrayX, int ArrayY)
 
 void UAStar_logic::SetStartPoint(int ArrayX, int ArrayY)
 {	
-	if (!StartNode)
-	{
-		StartNode = NewObject<UAStarNode>(this);
-	}
-	
 	StartNode->P.X = ArrayX;
 	StartNode->P.Y = ArrayY;	
+
+	StartNodeSetting = true;
 }
 
 void UAStar_logic::SetGoalPoint(int ArrayX, int ArrayY)
 {
-	if (!GoalNode)
-	{
-		GoalNode = NewObject<UAStarNode>(this);
-	}
-
 	GoalNode->P.X = ArrayX;
 	GoalNode->P.Y = ArrayY;	
+
+	GoalNodeSetting = true;
 }
 
 void UAStar_logic::Play()
 {
 	UE_LOG(LogTemp, Warning, TEXT("UAStar_logic::Play()"));
 
-	if (!StartNode || !GoalNode)
+	if (!StartNodeSetting || !GoalNodeSetting)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Start or Goal Point is not Setting"));
 
@@ -85,18 +79,12 @@ void UAStar_logic::Play()
 	CurNode = StartNode;
 
 	OpenList.Emplace(StartNode);
-
-	BStart = true;
 		
 	GEngine->GameViewport->GetWorld()->GetTimerManager().SetTimer(_TimerHandle, this, &UAStar_logic::Update, 0.3f, true);
 }
 
 void UAStar_logic::Tick(float DeltaTime)
-{
-	if (!BStart)
-	{
-		return;
-	}
+{	
 }
 
 void UAStar_logic::Update()
@@ -113,7 +101,7 @@ void UAStar_logic::Update()
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("No Way!!!!"));
 
 		GEngine->GameViewport->GetWorld()->GetTimerManager().ClearTimer(_TimerHandle);
-
+		
 		return;
 	}
 
@@ -280,10 +268,9 @@ void UAStar_logic::AddOpenNode(UAStarNode* curNode, const FVector2D& addPoint, D
 		{
 			if (i->F >= F)
 			{
-				OpenList.Remove(i);
+				//i->ConditionalBeginDestroy();
 
-				i->ConditionalBeginDestroy();
-				i = nullptr;
+				OpenList.Remove(i);				
 
 				break;
 			}

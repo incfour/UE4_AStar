@@ -47,5 +47,8 @@ public:
 	int BlockSize;	
 
 	TArray<class ABlockBox*> BlockBoxArray;
+	UPROPERTY()
 	class UAStar_logic* AStar;	
+
+	//TWeakObjectPtr<class UAStar_logic> AStar;
 };
