@@ -44,7 +44,11 @@ void AUE4_AStarGameModeBase::CameraSetting()
 		{
 			PlayerController->SetViewTargetWithBlend(Actor);
 			PlayerController->bShowMouseCursor = true;
-			PlayerController->bEnableClickEvents = true;			
+			PlayerController->bEnableClickEvents = true;		
+			
+			// Viewport Focus
+			FInputModeGameOnly InputMode;
+			PlayerController->SetInputMode(InputMode);
 		}		
 	}
 	else
