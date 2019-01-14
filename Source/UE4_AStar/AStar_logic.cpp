@@ -112,6 +112,8 @@ void UAStar_logic::Update()
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("Arrived!!!!"));
 
 		GEngine->GameViewport->GetWorld()->GetTimerManager().ClearTimer(_TimerHandle);
+
+		MakePath();
 	}
 	
 	FVector2D Vec2D;
@@ -287,6 +289,26 @@ void UAStar_logic::AddOpenNode(UAStarNode* curNode, const FVector2D& addPoint, D
 	addNode->dirType = nextDir;
 
 	OpenList.Emplace(addNode);
+}
+
+void UAStar_logic::MakePath()
+{
+	TArray<UAStarNode*> Paths;
+	UAStarNode* Node = CurNode;
+	
+	while (Node != StartNode)
+	{
+		Paths.Emplace(Node);
+
+		Node = Node->ParentsNode;
+	}
+	
+	Paths.Reserve(Paths.Num());
+
+	for (auto i : Paths)
+	{
+		FMainEvent::SpawnPathEvent.Broadcast(i->P);
+	}
 }
 
 float UAStar_logic::DirectionWeight(Dir_Type curDir, Dir_Type nextDir)

@@ -17,6 +17,7 @@ AUE4_AStarGameModeBase::AUE4_AStarGameModeBase(const FObjectInitializer& ObjectI
 void AUE4_AStarGameModeBase::StartPlay()
 {
 	FMainEvent::MoveWayEvent.AddUObject(this, &AUE4_AStarGameModeBase::RecvEvent_MoveWay);
+	FMainEvent::SpawnPathEvent.AddUObject(this, &AUE4_AStarGameModeBase::RecvEvent_SpawnPath);
 
 	Super::StartPlay();
 
@@ -254,5 +255,17 @@ void AUE4_AStarGameModeBase::RecvEvent_MoveWay(FVector2D Point)
 		
 		Mesh->SetActorLocation(Loc);
 	}
+}
+
+void AUE4_AStarGameModeBase::RecvEvent_SpawnPath(FVector2D Point)
+{
+	FVector2D WorldSpawnPoint = ConvertWorldSpawnPos(Point);
+
+	FActorSpawnParameters spawninfo;
+	spawninfo.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	ABlockBox* PathBox = GWorld->SpawnActor<ABlockBox>(FVector(WorldSpawnPoint.X, WorldSpawnPoint.Y, 0.0f), FRotator(0, 0, 0), spawninfo);
+	PathBox->ChangeMaterial();
+
+	BlockBoxArray.Emplace(PathBox);
 }
 

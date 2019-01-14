@@ -36,6 +36,7 @@ public:
 	bool IsEmptyPointInMap(const FVector2D& point);
 	bool IsCloseNode(const FVector2D& point);
 	void AddOpenNode(UAStarNode* curNode, const FVector2D& addPoint, Dir_Type nextDir);
+	void MakePath();
 	float DirectionWeight(Dir_Type curDir, Dir_Type nextDir);
 	UAStarNode* GetMinNodeF();
 

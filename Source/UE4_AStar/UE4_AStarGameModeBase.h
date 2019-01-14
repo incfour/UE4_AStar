@@ -33,6 +33,7 @@ public:
 	void GoalPointSetting();
 	void Play();
 	void RecvEvent_MoveWay(FVector2D Point);
+	void RecvEvent_SpawnPath(FVector2D Point);
 
 	/** Get Piking Point. */
 	FVector2D GetHitPoint();

@@ -9,7 +9,9 @@
 struct UE4_ASTAR_API FMainEvent
 {
 
-	DECLARE_MULTICAST_DELEGATE_OneParam(FMoveWayEvent, FVector2D /*stateName*/);
+	DECLARE_MULTICAST_DELEGATE_OneParam(FMoveWayEvent, FVector2D);
+	DECLARE_MULTICAST_DELEGATE_OneParam(FSpawnPathEvent, FVector2D);
 
 	static FMoveWayEvent MoveWayEvent;
+	static FSpawnPathEvent SpawnPathEvent;
 };

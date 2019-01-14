@@ -22,18 +22,22 @@ ABlockBox::ABlockBox()
 	}
 
 	static ConstructorHelpers::FObjectFinder<UMaterial>	Material (TEXT("Material'/Game/Material/Cube_mat.Cube_mat'"));
-	Mesh->SetMaterial(0, Material.Object);	
+	Mesh->SetMaterial(0, Material.Object);
+
+	static ConstructorHelpers::FObjectFinder<UMaterial>	Material2(TEXT("Material'/Game/Material/Path_mat.Path_mat'"));
+	TheMaterial = Material2.Object;	
 }
 
 ABlockBox::~ABlockBox()
-{
-	int a = 0;
+{	
 }
 
 // Called when the game starts or when spawned
 void ABlockBox::BeginPlay()
 {
-	Super::BeginPlay();	
+	Super::BeginPlay();		
+
+	
 }
 
 // Called every frame
@@ -41,5 +45,14 @@ void ABlockBox::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+}
+
+void ABlockBox::ChangeMaterial()
+{
+	UStaticMeshComponent* Mesh = Cast<UStaticMeshComponent>(RootComponent);
+	if (Mesh)
+	{
+		Mesh->SetMaterial(0, TheMaterial);
+	}	
 }
 

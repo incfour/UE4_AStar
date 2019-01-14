@@ -4,3 +4,4 @@
 #include "FMainEvent.h"
 
 FMainEvent::FMoveWayEvent FMainEvent::MoveWayEvent;
+FMainEvent::FSpawnPathEvent FMainEvent::SpawnPathEvent;
