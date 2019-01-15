@@ -296,6 +296,8 @@ void UAStar_logic::MakePath()
 	TArray<UAStarNode*> Paths;
 	UAStarNode* Node = CurNode;
 	
+	Paths.Emplace(StartNode);
+
 	while (Node != StartNode)
 	{
 		Paths.Emplace(Node);

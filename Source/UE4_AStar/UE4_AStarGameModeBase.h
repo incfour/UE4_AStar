@@ -26,6 +26,7 @@ public:
 	void InputSetting();
 	void EnvSetting();
 	void LMouseClick();	
+	void LMouseUp();
 	void SpawnBlock();
 	void ClearBlock();
 	void Clear();
@@ -46,6 +47,7 @@ public:
 
 	int MapSize;
 	int BlockSize;	
+	bool bSpawnBlock = false;
 
 	TArray<class ABlockBox*> BlockBoxArray;
 	UPROPERTY()

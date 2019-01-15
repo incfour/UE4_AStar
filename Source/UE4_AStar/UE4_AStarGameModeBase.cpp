@@ -33,6 +33,11 @@ void AUE4_AStarGameModeBase::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);	
 
 	AStar->Tick(DeltaTime);
+
+	if (bSpawnBlock)
+	{
+		SpawnBlock();
+	}
 }
 
 void AUE4_AStarGameModeBase::CameraSetting()
@@ -46,9 +51,12 @@ void AUE4_AStarGameModeBase::CameraSetting()
 			PlayerController->SetViewTargetWithBlend(Actor);
 			PlayerController->bShowMouseCursor = true;
 			PlayerController->bEnableClickEvents = true;		
-			
-			// Viewport Focus
+			//
+			//// Viewport Focus
 			FInputModeGameOnly InputMode;
+			// Fix IE_Pressed Problem 
+			InputMode.SetConsumeCaptureMouseDown(false);
+
 			PlayerController->SetInputMode(InputMode);
 		}		
 	}
@@ -63,8 +71,9 @@ void AUE4_AStarGameModeBase::InputSetting()
 	if (APlayerController* PlayerController = GetWorld()->GetFirstPlayerController())
 	{
 		if (PlayerController->InputComponent)
-		{		
-			PlayerController->InputComponent->BindAction(TEXT("LMouseClick"), IE_Released, this, &AUE4_AStarGameModeBase::LMouseClick);
+		{					
+			PlayerController->InputComponent->BindAction(TEXT("LMouseClick"), EInputEvent::IE_Pressed, this, &AUE4_AStarGameModeBase::LMouseClick);
+			PlayerController->InputComponent->BindAction(TEXT("LMouseUp"), IE_Released, this, &AUE4_AStarGameModeBase::LMouseUp);
 			PlayerController->InputComponent->BindAction(TEXT("C_Btn_Click"), IE_Released, this, &AUE4_AStarGameModeBase::Clear);
 			PlayerController->InputComponent->BindAction(TEXT("S_Btn_Click"), IE_Released, this, &AUE4_AStarGameModeBase::StartPointSetting);
 			PlayerController->InputComponent->BindAction(TEXT("G_Btn_Click"), IE_Released, this, &AUE4_AStarGameModeBase::GoalPointSetting);
@@ -75,9 +84,12 @@ void AUE4_AStarGameModeBase::InputSetting()
 
 void AUE4_AStarGameModeBase::LMouseClick()
 {
-	UE_LOG(LogTemp, Warning, TEXT("LMouseClick"));
+	bSpawnBlock = true;	
+}
 
-	SpawnBlock();
+void AUE4_AStarGameModeBase::LMouseUp()
+{
+	bSpawnBlock = false;	
 }
 
 void AUE4_AStarGameModeBase::EnvSetting()
