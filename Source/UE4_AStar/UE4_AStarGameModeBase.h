@@ -28,11 +28,21 @@ public:
 	void LMouseClick();	
 	void LMouseUp();
 	void SpawnBlock();
+
 	void ClearBlock();
-	void Clear();
+
+	UFUNCTION(BlueprintCallable)
 	void StartPointSetting();
+
+	UFUNCTION(BlueprintCallable)
 	void GoalPointSetting();
+
+	UFUNCTION(BlueprintCallable)
 	void Play();
+
+	UFUNCTION(BlueprintCallable)
+	void Clear();
+
 	void RecvEvent_MoveWay(FVector2D Point);
 	void RecvEvent_SpawnPath(FVector2D Point);
 

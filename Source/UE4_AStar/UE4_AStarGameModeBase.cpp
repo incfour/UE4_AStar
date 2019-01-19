@@ -11,7 +11,10 @@ AUE4_AStarGameModeBase::AUE4_AStarGameModeBase(const FObjectInitializer& ObjectI
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	AStar = CreateDefaultSubobject<UAStar_logic>(TEXT("UAStar_logic"));	
+	if (!HasAnyFlags(RF_ClassDefaultObject))
+	{
+		AStar = CreateDefaultSubobject<UAStar_logic>(TEXT("UAStar_logic"));
+	}	
 }
 
 void AUE4_AStarGameModeBase::StartPlay()
@@ -198,12 +201,12 @@ void AUE4_AStarGameModeBase::Clear()
 	if (AStaticMeshActor* Mesh = Util::FindActor<AStaticMeshActor>(GetWorld(), TEXT("Player")))
 	{
 		Mesh->SetActorLocation(FVector(-350, -550, 50));
-	}
+	}	
 
 	if (AStaticMeshActor* Mesh = Util::FindActor<AStaticMeshActor>(GetWorld(), TEXT("Goal")))
 	{
 		Mesh->SetActorLocation(FVector(-450, -550, 50));
-	}
+	}	
 }
 
 void AUE4_AStarGameModeBase::StartPointSetting()
