@@ -116,7 +116,7 @@ void AUE4_AStarGameModeBase::EnvSetting()
 
 FVector2D AUE4_AStarGameModeBase::GetHitPoint()
 {
-	FVector2D ret;	
+	FVector2D ret = FVector2D::ZeroVector;
 
 	if (APlayerController* PlayerController = GetWorld()->GetFirstPlayerController())
 	{
