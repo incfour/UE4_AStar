@@ -29,6 +29,8 @@ void AUE4_AStarGameModeBase::StartPlay()
 	EnvSetting();
 
 	AStar->StartPlay();
+
+	State = SettingState::SpawnBlock;
 }
 
 void AUE4_AStarGameModeBase::Tick(float DeltaTime)
@@ -37,10 +39,13 @@ void AUE4_AStarGameModeBase::Tick(float DeltaTime)
 
 	AStar->Tick(DeltaTime);
 
-	if (bSpawnBlock)
+	if (State == SettingState::SpawnBlock)
 	{
-		SpawnBlock();
-	}
+		if (bSpawnBlock)
+		{
+			SpawnBlock();
+		}
+	}	
 }
 
 void AUE4_AStarGameModeBase::CameraSetting()
@@ -87,12 +92,28 @@ void AUE4_AStarGameModeBase::InputSetting()
 
 void AUE4_AStarGameModeBase::LMouseClick()
 {
-	bSpawnBlock = true;	
+	switch (State)
+	{
+	case SettingState::SpawnBlock:
+		bSpawnBlock = true;
+		break;	
+	}	
 }
 
 void AUE4_AStarGameModeBase::LMouseUp()
 {
-	bSpawnBlock = false;	
+	switch (State)
+	{
+	case SettingState::SpawnBlock:
+		bSpawnBlock = false;
+		break;
+	case SettingState::StartPointSetting:
+		StartPointSetting();
+		break;
+	case SettingState::GoalPointSetting:
+		GoalPointSetting();
+		break;
+	}
 }
 
 void AUE4_AStarGameModeBase::EnvSetting()
@@ -201,12 +222,24 @@ void AUE4_AStarGameModeBase::Clear()
 	if (AStaticMeshActor* Mesh = Util::FindActor<AStaticMeshActor>(GetWorld(), TEXT("Player")))
 	{
 		Mesh->SetActorLocation(FVector(-350, -550, 50));
+		bStartPointSetting = false;
 	}	
 
 	if (AStaticMeshActor* Mesh = Util::FindActor<AStaticMeshActor>(GetWorld(), TEXT("Goal")))
 	{
 		Mesh->SetActorLocation(FVector(-450, -550, 50));
-	}	
+		bGoalPointSetting = false;
+	}		
+}
+
+bool AUE4_AStarGameModeBase::IsEnablePlay()
+{
+	return (bStartPointSetting && bGoalPointSetting) ? true : false;	
+}
+
+void AUE4_AStarGameModeBase::SetSettingState(SettingState InputState)
+{
+	State = InputState;
 }
 
 void AUE4_AStarGameModeBase::StartPointSetting()
@@ -227,6 +260,8 @@ void AUE4_AStarGameModeBase::StartPointSetting()
 			Mesh->SetActorLocation(Loc);
 
 			AStar->SetStartPoint(ArrayPoint.X, ArrayPoint.Y);
+
+			bStartPointSetting = true;
 		}
 	}	
 }
@@ -249,6 +284,8 @@ void AUE4_AStarGameModeBase::GoalPointSetting()
 
 			Mesh->SetActorLocation(Loc);			
 			AStar->SetGoalPoint(ArrayPoint.X, ArrayPoint.Y);
+
+			bGoalPointSetting = true;
 		}
 	}
 }

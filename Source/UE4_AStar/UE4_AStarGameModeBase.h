@@ -8,6 +8,14 @@
 
 //#define MAP_SELL_NUM 10
 
+UENUM()
+enum class SettingState : uint8
+{
+	SpawnBlock			UMETA(DisplayName = "SpawnBlock"),
+	StartPointSetting   UMETA(DisplayName = "StartPointSetting"),
+	GoalPointSetting    UMETA(DisplayName = "GoalPointSetting"),
+};
+
 /**
  * 
  */
@@ -31,10 +39,10 @@ public:
 
 	void ClearBlock();
 
-	UFUNCTION(BlueprintCallable)
+	//UFUNCTION(BlueprintCallable)
 	void StartPointSetting();
 
-	UFUNCTION(BlueprintCallable)
+	//UFUNCTION(BlueprintCallable)
 	void GoalPointSetting();
 
 	UFUNCTION(BlueprintCallable)
@@ -42,6 +50,12 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void Clear();
+
+	UFUNCTION(BlueprintCallable)
+	bool IsEnablePlay();
+
+	UFUNCTION(BlueprintCallable)
+	void SetSettingState(SettingState InputState);
 
 	void RecvEvent_MoveWay(FVector2D Point);
 	void RecvEvent_SpawnPath(FVector2D Point);
@@ -53,15 +67,22 @@ public:
 	FVector2D ConvertArrayPos(const FVector2D& HitPos);
 
 	/** Convert ArrayPos to WorldSpawnPos*/
-	FVector2D ConvertWorldSpawnPos(const FVector2D& ArrayPos);
+	FVector2D ConvertWorldSpawnPos(const FVector2D& ArrayPos);	
 
+private:
 	int MapSize;
-	int BlockSize;	
+	int BlockSize;
 	bool bSpawnBlock = false;
+	bool bStartPointSetting = false;	
+	bool bGoalPointSetting = false;
 
 	TArray<class ABlockBox*> BlockBoxArray;
+
 	UPROPERTY()
-	class UAStar_logic* AStar;	
+	SettingState State;
+
+	UPROPERTY()
+	class UAStar_logic* AStar;
 
 	//TWeakObjectPtr<class UAStar_logic> AStar;
 };
